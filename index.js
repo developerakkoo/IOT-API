@@ -10,6 +10,12 @@ const { mongoose } = require('mongoose');
 const User = require('./Routes/userRoute');
 const Service = require('./Routes/serviceRoute');
 const Host = require('./Routes/hostRoute');
+const Admin = require('./Routes/adminRoute');
+
+//Models
+const hostModel = require('./Modals/hostModal');
+const userModel = require('./Modals/userModal');
+
 dotenv.config({
   path: "./config.env"
 })
@@ -25,17 +31,7 @@ const diskStorage = multer.diskStorage({
   },
 });
 
-// const fileFilter = (req, file, cb) => {
-//   if (
-//     file.mimetype === "image/jpg" ||
-//     file.mimetype === "image/jpeg" ||
-//     file.mimetype === "image/png"
-//   ) {
-//     cb(null, true);
-//   } else {
-//     cb(null, false);
-//   }
-// };
+
 
 const app = express();
 app.use(
@@ -48,9 +44,12 @@ app.use("/image", express.static(path.join(__dirname, "image")));
 app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
+
+
 app.use(User);
 app.use(Service);
 app.use(Host);
+app.use(Admin);
 
 app.post('/charger', (req,res, next) =>
 {
@@ -121,7 +120,29 @@ mongoose
         io.on("connection", (socket) => {
             console.log("Connected a User");
 
-            socket.on('charger-start', (value) =>{
+            socket.on('charger-status',async (value) =>{
+              console.log(value);
+              let host = await hostModel
+                        .findByIdAndUpdate(value['hostId'], {
+                             status: (value['status'] == true) ? "available" : "fault"
+                                })
+              if(host){
+                io.emit('charger-status-change', host.status);
+
+              }
+            })
+            socket.on('charger-start', async (value) =>{
+              console.log(value);
+              let user = await userModel.findByIdAndUpdate(value['hostid'], {
+                $inc:{
+                  balance: -25
+              }
+              })
+
+              io.emit("user-balance", user);
+            })
+
+            socket.on('charger-stop', (value) =>{
               console.log(value);
             })
 

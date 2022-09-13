@@ -8,6 +8,7 @@ router.get('/host/', hostController.getHost);
 router.get('/host/:id', hostController.getHostById); 
 
 router.post('/host', hostController.postHost);
+router.post('/host/login', hostController.loginHost);
 
 router.put('/host/:id', hostController.updateHost);
 

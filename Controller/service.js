@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const io = require("../socket");
 
 exports.postService = async(req, res, next) =>{
     try {
@@ -100,6 +101,9 @@ exports.getService = async(req, res, next) =>{
                 message: "All Services listed...",
                 service
             })
+
+            io.getIO().emit("get:service", service);
+
         }
     } catch (error) {
         res.status(500).json({
@@ -121,6 +125,10 @@ exports.getServiceById = async(req, res, next) =>{
                 message: "Service found...",
                 service
             })
+
+
+            io.getIO().emit("get:service", service);
+
         }
     } catch (error) {
         res.status(500).json({
@@ -140,6 +148,9 @@ exports.updateService = async(req, res, next) =>{
                 message: "Service Updated...",
                 service
             })
+
+            io.getIO().emit("get:service", service);
+
         }
     } catch (error) {
         res.status(500).json({
@@ -160,6 +171,9 @@ exports.deleteService = async(req, res, next) =>{
                 message: "Service Deleted...",
                 service
             })
+
+            io.getIO().emit("get:service", service);
+
         }
     } catch (error) {
         res.status(500).json({

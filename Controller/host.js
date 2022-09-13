@@ -2,8 +2,46 @@ const Host = require('../Modals/hostModal');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const mailer = require('nodemailer');
+const io = require("../socket");
+
+exports.loginHost = async(req, res, next) =>{
+    const email = req.body.email;
+    const password = req.body.password;
+
+    let loadedUser;
 
 
+    Host.findOne({ email: email})
+    .then(user => {
+        if(!user){
+           res.status(400).json({message: 'Host not found', status:'error'})
+        }
+
+        loadedUser = user;
+
+        bcrypt.compare(password, user.password)
+        .then(async (doMatch) => {
+            if(!doMatch){
+                res.status(400).json({message: 'Password do not match', status:'error'})
+
+            }
+             const token = jwt.sign({
+                email: loadedUser.email,
+                userId: loadedUser._id.toString(),
+            },"!23ThisisaSecretFor@#$%^%^^&&allthebest", {expiresIn: '3h'})
+
+            res.status(200).json({
+                message: 'Sign In Successfull',
+                token: token,
+                userId: loadedUser._id.toString(),
+                expiresIn: '3h'
+            })
+        });
+    }).catch(err =>{
+        res.status(500).json({err, message: 'Something went wrong!'})
+
+    })
+}
 
 exports.postHost = async(req, res, next) =>{
     // try {
@@ -68,6 +106,9 @@ exports.getHost = async(req, res, next) =>{
                 length: host.length,
                 message: "All host Found!"
             })
+
+            io.getIO().emit("get:host", host);
+
         }
     } catch (error) {
         res.status(500).json({
@@ -87,6 +128,10 @@ exports.getHostById = async(req, res, next) =>{
                 status: true,
                 message: "host Found!"
             })
+            io.getIO().emit("get:host", host);
+
+
+
         }
     } catch (error) {
         res.status(500).json({
@@ -106,6 +151,9 @@ exports.updateHost = async(req, res, next) =>{
                 status: true,
                 message: "host Updated!"
             })
+
+            io.getIO().emit("get:host", host);
+
         }
     } catch (error) {
         res.status(500).json({
@@ -126,6 +174,9 @@ exports.deleteHost = async(req, res, next) =>{
                 status: true,
                 message: "host deleted!"
             })
+
+            io.getIO().emit("get:host", host);
+
         }
         
     } catch (error) {

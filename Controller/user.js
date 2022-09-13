@@ -1,6 +1,9 @@
 const UserAuth = require('../Modals/userModal');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const io = require("../socket");
+
+
 const razorpay = require('razorpay');
 
 var instance = new razorpay({
@@ -49,13 +52,12 @@ exports.loginUser = async(req, res, next) =>{
         loadedUser = user;
 
         bcrypt.compare(password, user.password)
-        .then(doMatch => {
+        .then(async (doMatch) => {
             if(!doMatch){
                 res.status(400).json({message: 'Password do not match', status:'error'})
 
             }
-
-            const token = jwt.sign({
+             const token = jwt.sign({
                 email: loadedUser.email,
                 userId: loadedUser._id.toString(),
             },"!23ThisisaSecretFor@#$%^%^^&&allthebest", {expiresIn: '3h'})
@@ -139,6 +141,8 @@ exports.getUser = async(req, res, next) =>{
                 user,
                 message: "All Users Retrived.."
             })
+
+            io.getIO().emit("get:user", user);
         }
         
     } catch (error) {
@@ -159,6 +163,9 @@ exports.getUserById = async(req, res, next) =>{
                 user,
                 message: "User Found!.."
             })
+
+            io.getIO().emit("get:user", user);
+
         }
     } catch (error) {
         res.status(500).json({
@@ -182,6 +189,9 @@ exports.updateUserBalance = async(req, res, next) =>{
                 user,
                 message: "User Updated.."
             })
+
+            io.getIO().emit("get:user", user);
+
         }
     } catch (error) {
         res.status(500).json({
@@ -202,6 +212,9 @@ exports.updateUser = async(req, res, next) =>{
                 user,
                 message: "User Updated.."
             })
+
+            io.getIO().emit("get:user", user);
+
         }
     } catch (error) {
         res.status(500).json({
@@ -222,6 +235,9 @@ exports.deleteUser = async(req, res, next) =>{
                 user,
                 message: "User Deleted.."
             })
+
+            io.getIO().emit("get:user", user);
+
         }
     } catch (error) {
         res.status(500).json({

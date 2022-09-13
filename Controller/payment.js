@@ -1,5 +1,6 @@
 const Payment = require("./../Modals/paymentModal");
 
+const io = require("../socket");
 
 
 exports.postPayment = async(req, res, next) =>{
@@ -11,6 +12,8 @@ exports.postPayment = async(req, res, next) =>{
                 payment,
                 message: "Payment Created!"
             })
+
+            io.getIO().emit("get:payment", payment);
         }
         
     } catch (error) {
@@ -29,6 +32,9 @@ exports.getPaymentByHostId = async(req, res, next) =>{
                 payment,
                 message: "Payments By HostId!"
             })
+
+            io.getIO().emit("getbyhost:payment", payment);
+
         }
     } catch (error) {
         res.status(500).json({
