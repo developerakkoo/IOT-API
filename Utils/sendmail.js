@@ -4,8 +4,8 @@ let transporter = mailer.createTransport({
     service: 'gmail',
     auth: {
     //   type: 'OAuth2',
-      user: "developerakshayjadhav@gmail.com",
-      pass:"sp1d3rw3b@",
+      user: "mailid@gmail.com",
+      pass:"password@",
     //   clientId: process.env.OAUTH_CLIENTID,
     //   clientSecret: process.env.OAUTH_CLIENT_SECRET,
     //   refreshToken: process.env.OAUTH_REFRESH_TOKEN
