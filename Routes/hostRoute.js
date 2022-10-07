@@ -11,6 +11,8 @@ router.post('/host', hostController.postHost);
 router.post('/host/login', hostController.loginHost);
 
 router.put('/host/:id', hostController.updateHost);
+router.put('/host/prebook/:id', hostController.prebook);
+
 
 router.delete('/host/:id', hostController.deleteHost);
 module.exports = router;

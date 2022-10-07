@@ -4,88 +4,88 @@ const bcrypt = require('bcryptjs');
 const mailer = require('nodemailer');
 const io = require("../socket");
 
-exports.loginHost = async(req, res, next) =>{
+exports.loginHost = async (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
 
     let loadedUser;
 
 
-    Host.findOne({ email: email})
-    .then(user => {
-        if(!user){
-           res.status(400).json({message: 'Host not found', status:'error'})
-        }
-
-        loadedUser = user;
-
-        bcrypt.compare(password, user.password)
-        .then(async (doMatch) => {
-            if(!doMatch){
-                res.status(400).json({message: 'Password do not match', status:'error'})
-
+    Host.findOne({ email: email })
+        .then(user => {
+            if (!user) {
+                res.status(400).json({ message: 'Host not found', status: 'error' })
             }
-             const token = jwt.sign({
-                email: loadedUser.email,
-                userId: loadedUser._id.toString(),
-            },"!23ThisisaSecretFor@#$%^%^^&&allthebest", {expiresIn: '3h'})
 
-            res.status(200).json({
-                message: 'Sign In Successfull',
-                token: token,
-                userId: loadedUser._id.toString(),
-                expiresIn: '3h'
-            })
-        });
-    }).catch(err =>{
-        res.status(500).json({err, message: 'Something went wrong!'})
+            loadedUser = user;
 
-    })
+            bcrypt.compare(password, user.password)
+                .then(async (doMatch) => {
+                    if (!doMatch) {
+                        res.status(400).json({ message: 'Password do not match', status: 'error' })
+
+                    }
+                    const token = jwt.sign({
+                        email: loadedUser.email,
+                        userId: loadedUser._id.toString(),
+                    }, "!23ThisisaSecretFor@#$%^%^^&&allthebest", { expiresIn: '3h' })
+
+                    res.status(200).json({
+                        message: 'Sign In Successfull',
+                        token: token,
+                        userId: loadedUser._id.toString(),
+                        expiresIn: '3h'
+                    })
+                });
+        }).catch(err => {
+            res.status(500).json({ err, message: 'Something went wrong!' })
+
+        })
 }
 
-exports.postHost = async(req, res, next) =>{
+exports.postHost = async (req, res, next) => {
     // try {
 
 
 
-        Host.findOne({ email: req.body.email})
+    Host.findOne({ email: req.body.email })
         .then(user => {
-            if(user){
+            if (user) {
                 res.status(400).json({
                     status: false,
                     message: 'Host with email already exists. Please use another email.'
                 })
             }
-    
+
             bcrypt.hash(req.body.password, 12)
-            .then((hashedPasswords) => {
-                const user = new Host({
-                    email: req.body.email,
-                    password: hashedPasswords,
-                    mobileNo: req.body.mobileNo,
-                    image: req.body.image,
-                    address: req.body.address,
-                    IFSC: req.body.IFSC,
-                    bankName: req.body.bankName,
-                    AccountNumber: req.body.AccountNumber,
-                    AccountHolderName: req.body.AccountHolderName,
-                    cords: req.body.cords
+                .then((hashedPasswords) => {
+                    const user = new Host({
+                        email: req.body.email,
+                        password: hashedPasswords,
+                        mobileNo: req.body.mobileNo,
+                        image: req.body.image,
+                        address: req.body.address,
+                        IFSC: req.body.IFSC,
+                        bankName: req.body.bankName,
+                        AccountNumber: req.body.AccountNumber,
+                        AccountHolderName: req.body.AccountHolderName,
+                        cords: req.body.cords
+                    })
+
+                    return user.save();
+                }).then(async (result) => {
+                    res
+                        .status(201)
+                        .json({ message: 'Host Created Successfully!', status: '201', result, userId: result._id });
+                }).catch((error) => {
+                    res.status(404).json({
+                        status: false,
+                        message: error.message
+                    })
                 })
-        
-                return user.save();
-            }).then(async (result) => {
-                res
-                .status(201)
-                .json({message: 'Host Created Successfully!', status: '201', result, userId: result._id});
-            }).catch((error) =>{
-                res.status(404).json({
-                    status: false,
-                    message: error.message
-                })
-            })
         })
 
-        
+
     // } catch (error) {
     //     res.status(500).json({
     //         status: false,
@@ -95,11 +95,11 @@ exports.postHost = async(req, res, next) =>{
     // }
 }
 
-exports.getHost = async(req, res, next) =>{
+exports.getHost = async (req, res, next) => {
     try {
         const host = await Host.find({});
 
-        if(host){
+        if (host) {
             res.status(200).json({
                 host,
                 status: true,
@@ -119,10 +119,10 @@ exports.getHost = async(req, res, next) =>{
     }
 }
 
-exports.getHostById = async(req, res, next) =>{
+exports.getHostById = async (req, res, next) => {
     try {
         const host = await Host.findById(req.params.id);
-        if(host){
+        if (host) {
             res.status(200).json({
                 host,
                 status: true,
@@ -142,10 +142,10 @@ exports.getHostById = async(req, res, next) =>{
     }
 }
 
-exports.updateHost = async(req, res, next) =>{
+exports.updateHost = async (req, res, next) => {
     try {
         const host = await Host.findByIdAndUpdate(req.params.id, req.body);
-        if(host){
+        if (host) {
             res.status(200).json({
                 host,
                 status: true,
@@ -165,10 +165,10 @@ exports.updateHost = async(req, res, next) =>{
 }
 
 
-exports.deleteHost = async(req, res, next) =>{
+exports.deleteHost = async (req, res, next) => {
     try {
         const host = await Host.findByIdAndDelete(req.params.id);
-        if(host){
+        if (host) {
             res.status(200).json({
                 host,
                 status: true,
@@ -178,7 +178,7 @@ exports.deleteHost = async(req, res, next) =>{
             io.getIO().emit("get:host", host);
 
         }
-        
+
     } catch (error) {
         res.status(500).json({
             status: false,
@@ -186,4 +186,31 @@ exports.deleteHost = async(req, res, next) =>{
             error
         })
     }
+}
+
+exports.prebook = async (req, res, next) => {
+    try {
+
+        const hostId = req.params.id;
+        const chargerId = req.body.chargerId;
+        const isBooked = true;
+        //const isBooked = req.body.isBooked;
+
+        const host = await Host.findByIdAndUpdate({ hostId }, isBooked, req.body);
+        if (host) {
+            res.status(200).json({
+                host,
+                status: true,
+                message: "Prebook confirmed!"
+            })
+            io.getIO().emit("put:prebook", host);
+        }
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            message: error.message,
+            error
+        })
+    }
+
 }
